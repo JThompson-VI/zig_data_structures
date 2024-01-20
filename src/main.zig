@@ -2,24 +2,37 @@ const std = @import("std");
 const root = @import("./root.zig");
 
 pub fn main() !void {
-    // Prints to stderr (it's a shortcut based on `std.io.getStdErr()`)
-    std.debug.print("{d}\n", .{root.add(4, root.x)});
+    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
+    var allocator = gpa.allocator();
 
-    // stdout is for the actual output of your application, for example if you
-    // are implementing gzip, then only the compressed bytes should be sent to
-    // stdout, not any debugging messages.
+    const L = root.linkedList(usize);
+    var list = L{};
     const stdout_file = std.io.getStdOut().writer();
     var bw = std.io.bufferedWriter(stdout_file);
     const stdout = bw.writer();
 
-    try stdout.print("Run `zig build test` to run the tests.\n", .{});
+    const n1 = try allocator.create(L.Node);
+    defer allocator.destroy(n1);
+    n1.* = .{
+        .data = 72,
+    };
 
-    try bw.flush(); // don't forget to flush!
-}
+    var n2 = L.Node{
+        .data = 43,
+    };
+    var n3 = L.Node{
+        .data = 34,
+    };
+    list.append(n1);
+    list.append(&n2);
+    list.prepend(&n3);
 
-test "simple test" {
-    var list = std.ArrayList(i32).init(std.testing.allocator);
-    defer list.deinit(); // try commenting this out and see if zig detects the memory leak!
-    try list.append(42);
-    try std.testing.expectEqual(@as(i32, 42), list.pop());
+    var node = list.root;
+    while (node) |n| {
+        try stdout.print("{} -> ", .{n.data});
+        node = node.?.next;
+    } else {
+        try stdout.print("NULL\n", .{});
+    }
+    try bw.flush();
 }
