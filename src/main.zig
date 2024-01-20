@@ -2,13 +2,35 @@ const std = @import("std");
 const root = @import("./root.zig");
 
 pub fn main() !void {
+
+    const B = root.BinarySearchTree(i32);
+    var tree = B{};
+    var n1 = B.Node{
+        .data = 72,
+    };
+    var n2 = B.Node{
+        .data = 30,
+    };
+    var n3 = B.Node{
+        .data = 80,
+    };
+    var n4 = B.Node{
+        .data = 32,
+    };
+    tree.insert(&n1);
+    tree.insert(&n2);
+    tree.insert(&n3);
+    tree.insert(&n4);
+    tree.dbg_print();
+}
+
+test "linkedList" {
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
     var allocator = gpa.allocator();
 
     const L = root.linkedList(usize);
     var list = L{};
-    const stdout_file = std.io.getStdOut().writer();
-    var bw = std.io.bufferedWriter(stdout_file);
+    var bw = std.io.bufferedWriter(std.io.getStdOut().writer());
     const stdout = bw.writer();
 
     const n1 = try allocator.create(L.Node);
@@ -35,4 +57,5 @@ pub fn main() !void {
         try stdout.print("NULL\n", .{});
     }
     try bw.flush();
+
 }
